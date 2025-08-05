@@ -1,75 +1,101 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>GameSetGo - Marcador TV</title>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Marcador GameSetGo</title>
   <style>
     body {
-      background: #0033a0;
+      margin: 0;
+      background-color: #002b56;
       color: white;
       font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-    }
-    .jugador {
       display: flex;
-      justify-content: space-between;
-      padding: 10px;
-      background: #0055dd;
-      margin: 10px auto;
-      max-width: 600px;
-      border-radius: 8px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
-    .puntos, .sets {
-      background: white;
-      color: #0033a0;
-      padding: 5px 15px;
-      border-radius: 6px;
-      font-size: 1.3em;
+    .scoreboard {
+      display: grid;
+      grid-template-columns: 1fr 0.5fr 0.5fr 0.5fr;
+      gap: 1rem;
+      font-size: 2.5rem;
+      text-align: center;
+      background-color: #014a92;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    }
+    .header {
       font-weight: bold;
+      font-size: 1.5rem;
+      text-transform: uppercase;
+    }
+    .player-name {
+      font-weight: bold;
+      font-size: 2rem;
     }
   </style>
 </head>
 <body>
-  <h1>🎾 GameSetGo</h1>
-  <div class="jugador">
-    <div>Lucía & Mateo</div>
-    <div class="sets" id="sets1">0</div>
-    <div class="puntos" id="puntos1">0</div>
-  </div>
-  <div class="jugador">
-    <div>Carlos & Pablo</div>
-    <div class="sets" id="sets2">0</div>
-    <div class="puntos" id="puntos2">0</div>
+  <div class="scoreboard">
+    <div class="header">Jugador</div>
+    <div class="header">Set</div>
+    <div class="header">Game</div>
+    <div class="header">Puntos</div>
+
+    <div class="player-name" id="player1Name">Jugador 1</div>
+    <div id="player1Sets">0</div>
+    <div id="player1Games">0</div>
+    <div id="player1Points">0</div>
+
+    <div class="player-name" id="player2Name">Jugador 2</div>
+    <div id="player2Sets">0</div>
+    <div id="player2Games">0</div>
+    <div id="player2Points">0</div>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAB7hzQXqsyc8YjBRQ_bT1riCF74u1V4gk",
       authDomain: "gamesetgo-demo.firebaseapp.com",
       databaseURL: "https://gamesetgo-demo-default-rtdb.firebaseio.com",
       projectId: "gamesetgo-demo",
-      storageBucket: "gamesetgo-demo.firebasestorage.app",
+      storageBucket: "gamesetgo-demo.appspot.com",
       messagingSenderId: "854392080313",
       appId: "1:854392080313:web:77c7abc959cb535e0b5868"
     };
-
-    firebase.initializeApp(firebaseConfig);
+    const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const partidoId = "demo1";
-    const ref = db.ref("partidos/" + partidoId);
+    const ui = {
+      player1Name: document.getElementById("player1Name"),
+      player1Sets: document.getElementById("player1Sets"),
+      player1Games: document.getElementById("player1Games"),
+      player1Points: document.getElementById("player1Points"),
+      player2Name: document.getElementById("player2Name"),
+      player2Sets: document.getElementById("player2Sets"),
+      player2Games: document.getElementById("player2Games"),
+      player2Points: document.getElementById("player2Points"),
+    };
 
-    ref.on("value", (snapshot) => {
+    db.ref("partido").on("value", (snapshot) => {
       const data = snapshot.val();
       if (!data) return;
-      document.getElementById("puntos1").textContent = data.puntos1 ?? 0;
-      document.getElementById("puntos2").textContent = data.puntos2 ?? 0;
-      document.getElementById("sets1").textContent = data.sets1 ?? 0;
-      document.getElementById("sets2").textContent = data.sets2 ?? 0;
+
+      ui.player1Name.textContent = data.player1.name;
+      ui.player1Sets.textContent = data.player1.sets;
+      ui.player1Games.textContent = data.player1.games;
+      ui.player1Points.textContent = data.player1.points_display;
+
+      ui.player2Name.textContent = data.player2.name;
+      ui.player2Sets.textContent = data.player2.sets;
+      ui.player2Games.textContent = data.player2.games;
+      ui.player2Points.textContent = data.player2.points_display;
     });
   </script>
 </body>
