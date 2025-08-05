@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>GameSetGo - Marcador TV</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background: #0033a0;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    .jugador {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      background: #0055dd;
+      margin: 10px auto;
+      max-width: 600px;
+      border-radius: 8px;
+    }
+    .puntos, .sets {
+      background: white;
+      color: #0033a0;
+      padding: 5px 15px;
+      border-radius: 6px;
+      font-size: 1.3em;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎾 GameSetGo</h1>
+  <div class="jugador">
+    <div>Lucía & Mateo</div>
+    <div class="sets" id="sets1">0</div>
+    <div class="puntos" id="puntos1">0</div>
+  </div>
+  <div class="jugador">
+    <div>Carlos & Pablo</div>
+    <div class="sets" id="sets2">0</div>
+    <div class="puntos" id="puntos2">0</div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAB7hzQXqsyc8YjBRQ_bT1riCF74u1V4gk",
+      authDomain: "gamesetgo-demo.firebaseapp.com",
+      databaseURL: "https://gamesetgo-demo-default-rtdb.firebaseio.com",
+      projectId: "gamesetgo-demo",
+      storageBucket: "gamesetgo-demo.firebasestorage.app",
+      messagingSenderId: "854392080313",
+      appId: "1:854392080313:web:77c7abc959cb535e0b5868"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const partidoId = "demo1";
+    const ref = db.ref("partidos/" + partidoId);
+
+    ref.on("value", (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+      document.getElementById("puntos1").textContent = data.puntos1 ?? 0;
+      document.getElementById("puntos2").textContent = data.puntos2 ?? 0;
+      document.getElementById("sets1").textContent = data.sets1 ?? 0;
+      document.getElementById("sets2").textContent = data.sets2 ?? 0;
+    });
+  </script>
+</body>
+</html>

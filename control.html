@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>GameSetGo - Control Remoto</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      padding: 20px;
+      text-align: center;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 5px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .sumar { background: #4CAF50; color: white; }
+    .restar { background: #f44336; color: white; }
+    .reiniciar { background: #333; color: white; }
+  </style>
+</head>
+<body>
+  <h2>Control Remoto - GameSetGo</h2>
+  <div>
+    <h3>Lucía & Mateo</h3>
+    <button class="sumar" onclick="actualizar('puntos1', 1)">+ Punto</button>
+    <button class="restar" onclick="actualizar('puntos1', -1)">- Punto</button>
+    <button class="sumar" onclick="actualizar('sets1', 1)">+ Set</button>
+    <button class="restar" onclick="actualizar('sets1', -1)">- Set</button>
+  </div>
+  <div>
+    <h3>Carlos & Pablo</h3>
+    <button class="sumar" onclick="actualizar('puntos2', 1)">+ Punto</button>
+    <button class="restar" onclick="actualizar('puntos2', -1)">- Punto</button>
+    <button class="sumar" onclick="actualizar('sets2', 1)">+ Set</button>
+    <button class="restar" onclick="actualizar('sets2', -1)">- Set</button>
+  </div>
+  <div style="margin-top:20px;">
+    <button class="reiniciar" onclick="reiniciar()">Reiniciar</button>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAB7hzQXqsyc8YjBRQ_bT1riCF74u1V4gk",
+      authDomain: "gamesetgo-demo.firebaseapp.com",
+      databaseURL: "https://gamesetgo-demo-default-rtdb.firebaseio.com",
+      projectId: "gamesetgo-demo",
+      storageBucket: "gamesetgo-demo.firebasestorage.app",
+      messagingSenderId: "854392080313",
+      appId: "1:854392080313:web:77c7abc959cb535e0b5868"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const partidoId = "demo1";
+    const ref = db.ref("partidos/" + partidoId);
+
+    function actualizar(campo, cambio) {
+      ref.get().then((snap) => {
+        const val = snap.val()?.[campo] || 0;
+        ref.update({ [campo]: Math.max(0, val + cambio) });
+      });
+    }
+
+    function reiniciar() {
+      ref.set({ puntos1: 0, puntos2: 0, sets1: 0, sets2: 0 });
+    }
+  </script>
+</body>
+</html>
