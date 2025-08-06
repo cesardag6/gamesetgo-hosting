@@ -2,75 +2,123 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>GameSetGo - Control Remoto</title>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Control GameSetGo</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f0f0f0;
-      padding: 20px;
-      text-align: center;
+      padding: 2rem;
+      background-color: #f4f4f4;
     }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      margin: 5px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
+    input, button {
+      padding: 0.5rem;
+      margin: 0.3rem;
+      font-size: 1rem;
     }
-    .sumar { background: #4CAF50; color: white; }
-    .restar { background: #f44336; color: white; }
-    .reiniciar { background: #333; color: white; }
+    h2 { margin-top: 2rem; }
+    .team-block { margin-bottom: 1rem; }
   </style>
 </head>
 <body>
-  <h2>Control Remoto - GameSetGo</h2>
-  <div>
-    <h3>Lucía & Mateo</h3>
-    <button class="sumar" onclick="actualizar('puntos1', 1)">+ Punto</button>
-    <button class="restar" onclick="actualizar('puntos1', -1)">- Punto</button>
-    <button class="sumar" onclick="actualizar('sets1', 1)">+ Set</button>
-    <button class="restar" onclick="actualizar('sets1', -1)">- Set</button>
-  </div>
-  <div>
-    <h3>Carlos & Pablo</h3>
-    <button class="sumar" onclick="actualizar('puntos2', 1)">+ Punto</button>
-    <button class="restar" onclick="actualizar('puntos2', -1)">- Punto</button>
-    <button class="sumar" onclick="actualizar('sets2', 1)">+ Set</button>
-    <button class="restar" onclick="actualizar('sets2', -1)">- Set</button>
-  </div>
-  <div style="margin-top:20px;">
-    <button class="reiniciar" onclick="reiniciar()">Reiniciar</button>
+  <h1>Panel de Control - GameSetGo</h1>
+
+  <div class="team-block">
+    <h2>Equipo 1 (Azul)</h2>
+    <input type="text" id="p1_name1" placeholder="Jugador 1" />
+    <input type="text" id="p1_name2" placeholder="Jugador 2" />
+    <br/>
+    <button onclick="sumarPunto('player1')">+ Punto</button>
+    <button onclick="restarPunto('player1')">- Punto</button>
   </div>
 
+  <div class="team-block">
+    <h2>Equipo 2 (Rojo)</h2>
+    <input type="text" id="p2_name1" placeholder="Jugador 1" />
+    <input type="text" id="p2_name2" placeholder="Jugador 2" />
+    <br/>
+    <button onclick="sumarPunto('player2')">+ Punto</button>
+    <button onclick="restarPunto('player2')">- Punto</button>
+  </div>
+
+  <div>
+    <button onclick="guardarNombres()">Guardar Nombres</button>
+    <button onclick="cambiarSaque()">Cambiar Saque</button>
+    <button onclick="reiniciar()">Reiniciar</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script>
-    const firebaseConfig = {
+    const config = {
       apiKey: "AIzaSyAB7hzQXqsyc8YjBRQ_bT1riCF74u1V4gk",
       authDomain: "gamesetgo-demo.firebaseapp.com",
       databaseURL: "https://gamesetgo-demo-default-rtdb.firebaseio.com",
       projectId: "gamesetgo-demo",
-      storageBucket: "gamesetgo-demo.firebasestorage.app",
+      storageBucket: "gamesetgo-demo.appspot.com",
       messagingSenderId: "854392080313",
       appId: "1:854392080313:web:77c7abc959cb535e0b5868"
     };
-
-    firebase.initializeApp(firebaseConfig);
+    const app = firebase.initializeApp(config);
     const db = firebase.database();
-    const partidoId = "demo1";
-    const ref = db.ref("partidos/" + partidoId);
+    const puntos = ["0", "15", "30", "40", "Ventaja"];
 
-    function actualizar(campo, cambio) {
-      ref.get().then((snap) => {
-        const val = snap.val()?.[campo] || 0;
-        ref.update({ [campo]: Math.max(0, val + cambio) });
+    function actualizarDB(update) {
+      db.ref("partido").once("value").then(snapshot => {
+        const data = snapshot.val() || inicial();
+        const nuevo = {...data, ...update};
+        db.ref("partido").set(nuevo);
+      });
+    }
+
+    function inicial() {
+      return {
+        player1: { name1: "Nombre", name2: "Nombre", points: 0, points_display: "0", sets: [0, 0, 0] },
+        player2: { name1: "Nombre", name2: "Nombre", points: 0, points_display: "0", sets: [0, 0, 0] },
+        server: 1
+      };
+    }
+
+    function sumarPunto(player) {
+      db.ref("partido").once("value").then(snapshot => {
+        const data = snapshot.val() || inicial();
+        const current = data[player];
+        current.points = Math.min(current.points + 1, 4);
+        current.points_display = puntos[current.points] || "G";
+        actualizarDB({ [player]: current });
+      });
+    }
+
+    function restarPunto(player) {
+      db.ref("partido").once("value").then(snapshot => {
+        const data = snapshot.val() || inicial();
+        const current = data[player];
+        current.points = Math.max(current.points - 1, 0);
+        current.points_display = puntos[current.points];
+        actualizarDB({ [player]: current });
+      });
+    }
+
+    function guardarNombres() {
+      const p1_name1 = document.getElementById("p1_name1").value || "Nombre";
+      const p1_name2 = document.getElementById("p1_name2").value || "Nombre";
+      const p2_name1 = document.getElementById("p2_name1").value || "Nombre";
+      const p2_name2 = document.getElementById("p2_name2").value || "Nombre";
+
+      db.ref("partido/player1/name1").set(p1_name1);
+      db.ref("partido/player1/name2").set(p1_name2);
+      db.ref("partido/player2/name1").set(p2_name1);
+      db.ref("partido/player2/name2").set(p2_name2);
+    }
+
+    function cambiarSaque() {
+      db.ref("partido/server").once("value").then(snapshot => {
+        const current = snapshot.val() || 1;
+        db.ref("partido/server").set(current === 1 ? 2 : 1);
       });
     }
 
     function reiniciar() {
-      ref.set({ puntos1: 0, puntos2: 0, sets1: 0, sets2: 0 });
+      db.ref("partido").set(inicial());
     }
   </script>
 </body>
