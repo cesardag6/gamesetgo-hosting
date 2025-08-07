@@ -2,54 +2,13 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Control GameSetGo</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 2rem;
-      background-color: #f4f4f4;
-    }
-    input, button {
-      padding: 0.5rem;
-      margin: 0.3rem;
-      font-size: 1rem;
-    }
-    h2 { margin-top: 2rem; }
-    .team-block { margin-bottom: 1rem; }
-  </style>
-</head>
-<body>
-  <h1>Panel de Control - GameSetGo</h1>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  <div class="team-block">
-    <h2>Equipo 1 (Azul)</h2>
-    <input type="text" id="p1_name1" placeholder="Jugador 1" />
-    <input type="text" id="p1_name2" placeholder="Jugador 2" />
-    <br/>
-    <button onclick="sumarPunto('player1')">+ Punto</button>
-    <button onclick="restarPunto('player1')">- Punto</button>
-  </div>
-
-  <div class="team-block">
-    <h2>Equipo 2 (Rojo)</h2>
-    <input type="text" id="p2_name1" placeholder="Jugador 1" />
-    <input type="text" id="p2_name2" placeholder="Jugador 2" />
-    <br/>
-    <button onclick="sumarPunto('player2')">+ Punto</button>
-    <button onclick="restarPunto('player2')">- Punto</button>
-  </div>
-
-  <div>
-    <button onclick="guardarNombres()">Guardar Nombres</button>
-    <button onclick="cambiarSaque()">Cambiar Saque</button>
-    <button onclick="reiniciar()">Reiniciar</button>
-  </div>
-
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <script>
-    const config = {
+    const firebaseConfig = {
       apiKey: "AIzaSyAB7hzQXqsyc8YjBRQ_bT1riCF74u1V4gk",
       authDomain: "gamesetgo-demo.firebaseapp.com",
       databaseURL: "https://gamesetgo-demo-default-rtdb.firebaseio.com",
@@ -58,68 +17,95 @@
       messagingSenderId: "854392080313",
       appId: "1:854392080313:web:77c7abc959cb535e0b5868"
     };
-    const app = firebase.initializeApp(config);
-    const db = firebase.database();
-    const puntos = ["0", "15", "30", "40", "Ventaja"];
 
-    function actualizarDB(update) {
-      db.ref("partido").once("value").then(snapshot => {
-        const data = snapshot.val() || inicial();
-        const nuevo = {...data, ...update};
-        db.ref("partido").set(nuevo);
-      });
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const matchRef = ref(db, 'match');
+
+    function sendUpdate(updateObj) {
+      update(matchRef, updateObj);
     }
 
-    function inicial() {
-      return {
-        player1: { name1: "Nombre", name2: "Nombre", points: 0, points_display: "0", sets: [0, 0, 0] },
-        player2: { name1: "Nombre", name2: "Nombre", points: 0, points_display: "0", sets: [0, 0, 0] },
-        server: 1
-      };
+    window.setTeamName = (team, player, value) => {
+      sendUpdate({ [`${team}Name${player}`]: value });
     }
 
-    function sumarPunto(player) {
-      db.ref("partido").once("value").then(snapshot => {
-        const data = snapshot.val() || inicial();
-        const current = data[player];
-        current.points = Math.min(current.points + 1, 4);
-        current.points_display = puntos[current.points] || "G";
-        actualizarDB({ [player]: current });
-      });
+    window.updateScore = (team, delta) => {
+      sendUpdate({ [`${team}ScoreDelta`]: delta });
     }
 
-    function restarPunto(player) {
-      db.ref("partido").once("value").then(snapshot => {
-        const data = snapshot.val() || inicial();
-        const current = data[player];
-        current.points = Math.max(current.points - 1, 0);
-        current.points_display = puntos[current.points];
-        actualizarDB({ [player]: current });
-      });
+    window.toggleServe = (team) => {
+      sendUpdate({ server: team });
     }
 
-    function guardarNombres() {
-      const p1_name1 = document.getElementById("p1_name1").value || "Nombre";
-      const p1_name2 = document.getElementById("p1_name2").value || "Nombre";
-      const p2_name1 = document.getElementById("p2_name1").value || "Nombre";
-      const p2_name2 = document.getElementById("p2_name2").value || "Nombre";
-
-      db.ref("partido/player1/name1").set(p1_name1);
-      db.ref("partido/player1/name2").set(p1_name2);
-      db.ref("partido/player2/name1").set(p2_name1);
-      db.ref("partido/player2/name2").set(p2_name2);
-    }
-
-    function cambiarSaque() {
-      db.ref("partido/server").once("value").then(snapshot => {
-        const current = snapshot.val() || 1;
-        db.ref("partido/server").set(current === 1 ? 2 : 1);
-      });
-    }
-
-    function reiniciar() {
-      db.ref("partido").set(inicial());
+    window.resetMatch = () => {
+      set(matchRef, null);
     }
   </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f0f0f0;
+    }
+    .section {
+      margin-bottom: 20px;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    input {
+      margin: 5px;
+    }
+    button {
+      margin: 5px;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Control GameSetGo</h1>
+
+  <div class="section">
+    <h2>Nombres de jugadores</h2>
+    <div>
+      <strong>Equipo Azul</strong><br />
+      <input placeholder="Jugador 1" onchange="setTeamName('team1', 1, this.value)" />
+      <input placeholder="Jugador 2" onchange="setTeamName('team1', 2, this.value)" />
+    </div>
+    <div>
+      <strong>Equipo Rojo</strong><br />
+      <input placeholder="Jugador 1" onchange="setTeamName('team2', 1, this.value)" />
+      <input placeholder="Jugador 2" onchange="setTeamName('team2', 2, this.value)" />
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Puntuación</h2>
+    <div>
+      <strong>Equipo Azul</strong>
+      <button onclick="updateScore('team1', 1)">+1</button>
+      <button onclick="updateScore('team1', -1)">-1</button>
+    </div>
+    <div>
+      <strong>Equipo Rojo</strong>
+      <button onclick="updateScore('team2', 1)">+1</button>
+      <button onclick="updateScore('team2', -1)">-1</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Servicio</h2>
+    <button onclick="toggleServe('team1')">Saca Azul</button>
+    <button onclick="toggleServe('team2')">Saca Rojo</button>
+  </div>
+
+  <div class="section">
+    <h2>Resetear</h2>
+    <button onclick="resetMatch()" style="background: red; color: white;">Reiniciar Marcador</button>
+  </div>
 </body>
 </html>
