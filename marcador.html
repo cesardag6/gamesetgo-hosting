@@ -2,12 +2,12 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GameSetGo Marcador</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GameSetGo - Marcador</title>
   <style>
     body {
       margin: 0;
-      background-color: #003366;
+      background-color: #012f6b;
       font-family: Arial, sans-serif;
       color: white;
       display: flex;
@@ -15,148 +15,118 @@
       align-items: center;
       height: 100vh;
     }
-    .container {
-      background-color: #00bfff;
-      padding: 2rem;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 1000px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+    .scoreboard {
+      background-color: #00aeef;
+      padding: 20px;
+      border: 5px solid white;
+      text-align: center;
+      width: 600px;
     }
-    .header, .footer {
+    .header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .header span {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .teams {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 10px;
+    }
+    .team {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
-      font-size: 1.5rem;
     }
-    .footer {
-      margin-top: 2rem;
-      font-size: 1.8rem;
-      justify-content: center;
-    }
-    .score-table {
-      width: 100%;
-      display: grid;
-      grid-template-columns: 2fr repeat(3, 1fr) 1fr;
-      gap: 1rem;
-      background-color: #00bfff;
-    }
-    .cell, .score-cell {
-      padding: 0.5rem;
-      background-color: white;
-      color: #003366;
-      font-size: 2rem;
-      text-align: center;
-      border-radius: 5px;
-    }
-    .player-name {
+    .team .names {
       text-align: left;
-      font-weight: bold;
-      font-size: 1.5rem;
     }
-    .underline-blue { border-bottom: 4px solid #003366; }
-    .underline-red { border-bottom: 4px solid #ff0000; }
-    .dot { height: 16px; width: 16px; background-color: #00ff00; border-radius: 50%; display: inline-block; margin-left: 10px; }
-    .set-labels {
-      display: grid;
-      grid-template-columns: 2fr repeat(3, 1fr) 1fr;
-      text-align: center;
+    .team .names div {
+      font-size: 18px;
+      margin: 2px 0;
+    }
+    .team.blue .names div:last-child {
+      border-bottom: 4px solid #002f6c;
+    }
+    .team.red .names div:last-child {
+      border-bottom: 4px solid #e30613;
+    }
+    .serve {
+      width: 15px;
+      height: 15px;
+      background-color: #00ff00;
+      border-radius: 50%;
+      margin-left: 10px;
+    }
+    .sets {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin: 10px 0;
+    }
+    .sets div {
+      font-size: 22px;
+    }
+    .points {
+      font-size: 48px;
       font-weight: bold;
-      color: #003366;
-      margin-bottom: 0.5rem;
+      background: white;
+      color: #012f6b;
+      padding: 10px;
+      width: 100px;
+      margin: 0 auto;
+    }
+    .logo {
+      margin-top: 10px;
+      font-size: 24px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="scoreboard">
     <div class="header">
-      <div><strong>Partido</strong></div>
-      <div>Logo de club</div>
-      <div id="hora">--:--</div>
+      <span>Partido</span>
+      <span>Logo de club</span>
+      <span>20:30 h</span>
     </div>
-
-    <div class="set-labels">
-      <div></div>
-      <div>Set 1</div>
-      <div>Set 2</div>
-      <div>Set 3</div>
-      <div>Puntos</div>
+    <div class="teams">
+      <div class="team blue">
+        <div class="names">
+          <div id="team1_player1">Nombre</div>
+          <div id="team1_player2">Nombre</div>
+        </div>
+        <div class="serve" style="visibility:hidden" id="serve1"></div>
+      </div>
+      <div class="team red">
+        <div class="names">
+          <div id="team2_player1">Nombre</div>
+          <div id="team2_player2">Nombre</div>
+        </div>
+        <div class="serve" style="visibility:hidden" id="serve2"></div>
+      </div>
     </div>
-
-    <div class="score-table">
-      <div class="player-name underline-blue" id="p1_name1">Nombre</div>
-      <div class="cell" id="p1_set1">0</div>
-      <div class="cell" id="p1_set2">0</div>
-      <div class="cell" id="p1_set3">0</div>
-      <div class="score-cell" id="p1_score">0</div>
-
-      <div class="player-name underline-blue" id="p1_name2">Nombre</div>
-      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-
-      <div class="player-name underline-red" id="p2_name1">Nombre <span id="p2_dot" class="dot" style="display:none;"></span></div>
-      <div class="cell" id="p2_set1">0</div>
-      <div class="cell" id="p2_set2">0</div>
-      <div class="cell" id="p2_set3">0</div>
-      <div class="score-cell" id="p2_score">0</div>
-
-      <div class="player-name underline-red" id="p2_name2">Nombre</div>
-      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+    <div class="sets">
+      <div>
+        <div id="set1_team1">0</div>
+        <div id="set1_team2">0</div>
+      </div>
+      <div>
+        <div id="set2_team1">0</div>
+        <div id="set2_team2">0</div>
+      </div>
+      <div>
+        <div id="set3_team1">0</div>
+        <div id="set3_team2">0</div>
+      </div>
     </div>
-
-    <div class="footer">
-      <strong>GameSetGo</strong> <span class="dot"></span>
+    <div class="points">
+      <div id="score_team1">0</div>
+      <div id="score_team2">0</div>
     </div>
+    <div class="logo">GameSetGo <span style="color:lime">●</span></div>
   </div>
-
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <script>
-    const config = {
-      apiKey: "AIzaSyAB7hzQXqsyc8YjBRQ_bT1riCF74u1V4gk",
-      authDomain: "gamesetgo-demo.firebaseapp.com",
-      databaseURL: "https://gamesetgo-demo-default-rtdb.firebaseio.com",
-      projectId: "gamesetgo-demo",
-      storageBucket: "gamesetgo-demo.appspot.com",
-      messagingSenderId: "854392080313",
-      appId: "1:854392080313:web:77c7abc959cb535e0b5868"
-    };
-    const app = firebase.initializeApp(config);
-    const db = firebase.database();
-
-    function actualizarMarcador(data) {
-      document.getElementById("p1_name1").textContent = data.player1.name1;
-      document.getElementById("p1_name2").textContent = data.player1.name2;
-      document.getElementById("p1_set1").textContent = data.player1.sets[0];
-      document.getElementById("p1_set2").textContent = data.player1.sets[1];
-      document.getElementById("p1_set3").textContent = data.player1.sets[2];
-      document.getElementById("p1_score").textContent = data.player1.points_display;
-
-      document.getElementById("p2_name1").textContent = data.player2.name1;
-      document.getElementById("p2_name2").textContent = data.player2.name2;
-      document.getElementById("p2_set1").textContent = data.player2.sets[0];
-      document.getElementById("p2_set2").textContent = data.player2.sets[1];
-      document.getElementById("p2_set3").textContent = data.player2.sets[2];
-      document.getElementById("p2_score").textContent = data.player2.points_display;
-
-      document.getElementById("p2_dot").style.display = data.server === 2 ? "inline-block" : "none";
-    }
-
-    db.ref("partido").on("value", (snapshot) => {
-      const data = snapshot.val();
-      if (!data) return;
-      actualizarMarcador(data);
-    });
-
-    // Mostrar hora
-    const horaEl = document.getElementById("hora");
-    setInterval(() => {
-      const ahora = new Date();
-      const hh = String(ahora.getHours()).padStart(2, "0");
-      const mm = String(ahora.getMinutes()).padStart(2, "0");
-      horaEl.textContent = `${hh}:${mm}`;
-    }, 1000);
-  </script>
 </body>
 </html>
-
