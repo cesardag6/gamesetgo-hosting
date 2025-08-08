@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Marcador GameSetGo</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body>
+    <div id="scoreboard">
+        <div class="team" id="team1">
+            <h2 id="team1-name">Equipo 1</h2>
+            <div class="score">
+                <span id="team1-sets">0</span> - 
+                <span id="team1-games">0</span> - 
+                <span id="team1-points">0</span>
+            </div>
+        </div>
+        <div class="team" id="team2">
+            <h2 id="team2-name">Equipo 2</h2>
+            <div class="score">
+                <span id="team2-sets">0</span> - 
+                <span id="team2-games">0</span> - 
+                <span id="team2-points">0</span>
+            </div>
+        </div>
+    </div>
+    <script src="../firebase-config.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
